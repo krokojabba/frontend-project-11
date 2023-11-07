@@ -1,6 +1,11 @@
+develop:
+	npx webpack serve
+
 install:
 	npm ci
-	npm link
+
+build:
+	NODE_ENV=production npx webpack
 
 publish:
 	npm publish --dry-run

@@ -9,7 +9,7 @@ export default () => {
       state: 'filling', // filling, invalid, checking, adding
       error: '',
     },
-    fids: [],
+    feeds: [],
     posts: [],
     lng: 'en',
   };

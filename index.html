@@ -1,42 +1,53 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Webpack App</title>
-  </head>
-  <body>
-    <main>
-      <section class="container">
-        <div class="row gy-2">
-          <h1 class="display-3 mb-0">RSS Agregator</h1>
-          <form>
-            <div class="row">
-              <div class="col-8">
-                <div class="form-floating">
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="rssInput"
-                    name="url"
-                    placeholder="RSS link"
-                    aria-describedby="rssLinkHelpBlock feedback"
-                    required
-                    autofocus
-                  />
-                  <label for="rssInput">RSS link</label>
-                </div>
-                <div id="rssLinkHelpBlock" class="form-text">
-                  Example: https://ru.hexlet.io/lessons.rss
-                </div>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Webpack App</title>
+</head>
+
+<body>
+  <main>
+    <section class="container">
+      <div class="row gy-2">
+        <h1 class="display-3 mb-0">RSS Agregator</h1>
+        <form>
+          <div class="row">
+            <div class="col-8">
+              <div class="form-floating">
+                <input type="text" class="form-control" id="rssInput" name="url" placeholder="RSS link"
+                  aria-describedby="rssLinkHelpBlock feedback" required autofocus />
+                <label for="rssInput">RSS link</label>
               </div>
-              <div class="col-4">
-                <button type="submit" name="submit" class="btn btn-primary">Subscribe</button>
+              <div id="rssLinkHelpBlock" class="form-text">
+                Example: https://ru.hexlet.io/lessons.rss
               </div>
             </div>
-          </form>
+            <div class="col-4">
+              <button type="submit" name="submit" class="btn btn-primary">Subscribe</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </section>
+    <section class="container invisible" id="content-section">
+      <div class="row">
+        <div class="col-md-10 col-lg-8 order-1 mx-auto">
+          <div class="card border-0">
+            <h2 class="card-title h4">Посты</h2>
+            <ul id="posts" class="list-group list-group-flush"></ul>
+          </div>
         </div>
-      </section>
-    </main>
-  </body>
+        <div class="col-md-10 col-lg-4 mx-auto order-0 order-lg-1">
+          <div class="card border-0">
+            <h2 class="card-title h4">Фиды</h2>
+            <ul id="feeds" class="list-group list-group-flush"></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+
 </html>

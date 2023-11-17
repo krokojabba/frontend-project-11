@@ -11,7 +11,7 @@ export default (initState, i18nextInstance) => {
     if (existFeedback) existFeedback.remove();
   };
 
-  const state = onChange(initState, (path, current, previous) => {
+  const state = onChange(initState, (/* path, current, previous */) => {
     // console.log(`${path}: ${previous} -> ${current}`);
     // console.log(JSON.stringify(state));
     switch (state.rssSubscribeForm.state) {

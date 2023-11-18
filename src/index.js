@@ -1,11 +1,11 @@
 import * as yup from 'yup';
 import axios from 'axios';
-import _ from 'lodash';
 import init from './init.js';
 import view from './view.js';
 
 const { initState, i18nextInstance } = init();
 const state = view(initState, i18nextInstance);
+const updateTimeout = 5000;
 
 const rssURLValidate = (url) => yup
   .string()
@@ -25,14 +25,12 @@ const parsRSS = (
 };
 
 const extractChannel = (rssDocument) => ({
-  id: _.uniqueId(),
   title: rssDocument.querySelector('channel>title').textContent,
   description: rssDocument.querySelector('channel>description').textContent,
 });
 
 const extractPosts = (rssDocument, channelId) => Array
   .from(rssDocument.querySelectorAll('item')).map((item) => ({
-    id: _.uniqueId(),
     title: item.querySelector('title').textContent,
     link: item.querySelector('link').textContent,
     channelId,
@@ -53,20 +51,16 @@ const form = document.querySelector('form');
 form.addEventListener('submit', (e) => {
   e.preventDefault();
   state.rssSubscribeForm.state = 'checking';
-  // console.log(state.fids.map(({ link }) => link));
   rssURLValidate(form.elements.url.value)
     .then(() => {
       state.rssSubscribeForm.error = '';
-      // state.rssSubscribeForm.state = 'adding';
       return getRSS(form.elements.url.value);
     })
     .then(({ data: { contents } }) => {
-      // console.log(contents);
-      // console.log(parsRSS(contents));
       const rssDocument = parsRSS(contents);
       const currentChannel = { ...extractChannel(rssDocument), link: form.elements.url.value };
-      state.feeds.push(currentChannel);
-      state.posts.push(...extractPosts(rssDocument, currentChannel.id));
+      const currentCannelId = state.addFeed(currentChannel);
+      state.addPosts(extractPosts(rssDocument, currentCannelId));
     })
     .then(() => {
       state.rssSubscribeForm.state = 'added';
@@ -78,3 +72,22 @@ form.addEventListener('submit', (e) => {
       state.rssSubscribeForm.state = 'invalid';
     });
 });
+
+const updateFeeds = () => {
+  setTimeout(() => {
+    state.getFeeds().forEach((feed) => {
+      getRSS(feed.link)
+        .then(({ data: { contents } }) => {
+          const rssDocument = parsRSS(contents);
+          state.addPosts(extractPosts(rssDocument, feed.id));
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    });
+    console.log(JSON.stringify(state));
+    updateFeeds();
+  }, updateTimeout);
+};
+
+updateFeeds();

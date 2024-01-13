@@ -1,9 +1,12 @@
 export default {
   translation: {
     error: {
-      urlAlreadyExist: 'This URL is already exist',
-      invalidUrl: 'Invalid URL',
+      urlAlreadyExist: 'RSS уже существует',
+      invalidUrl: 'Ссылка должна быть валидным URL',
+      invalidRSS: 'Ресурс не содержит валидный RSS',
+      networkError: 'Ошибка сети',
     },
-    validFeedBack: 'URL successfully added',
+    validFeedBack: 'RSS успешно загружен',
+    viewBtnLable: 'Просмотр',
   },
 };

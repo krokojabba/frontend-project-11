@@ -19,7 +19,7 @@ class State {
     };
     this.feeds = [];
     this.posts = [];
-    this.lng = 'en';
+    this.lng = 'ru';
     this.uiState = {
       modal: {
         currentPostId: null,

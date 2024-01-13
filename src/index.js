@@ -33,6 +33,7 @@ const extractPosts = (rssDocument, channelId) => Array
   .from(rssDocument.querySelectorAll('item')).map((item) => ({
     title: item.querySelector('title').textContent,
     link: item.querySelector('link').textContent,
+    description: item.querySelector('description').textContent,
     channelId,
   }));
 
@@ -47,32 +48,6 @@ const getRSS = (rssUrl) => axios({
   throw new Error('networkError');
 });
 
-const form = document.querySelector('form');
-form.addEventListener('submit', (e) => {
-  e.preventDefault();
-  state.rssSubscribeForm.state = 'checking';
-  rssURLValidate(form.elements.url.value)
-    .then(() => {
-      state.rssSubscribeForm.error = '';
-      return getRSS(form.elements.url.value);
-    })
-    .then(({ data: { contents } }) => {
-      const rssDocument = parsRSS(contents);
-      const currentChannel = { ...extractChannel(rssDocument), link: form.elements.url.value };
-      const currentCannelId = state.addFeed(currentChannel);
-      state.addPosts(extractPosts(rssDocument, currentCannelId));
-    })
-    .then(() => {
-      state.rssSubscribeForm.state = 'added';
-      state.rssSubscribeForm.state = 'filling';
-    })
-    .catch((err) => {
-      console.log(err);
-      state.rssSubscribeForm.error = err.message;
-      state.rssSubscribeForm.state = 'invalid';
-    });
-});
-
 const updateFeeds = () => {
   setTimeout(() => {
     state.getFeeds().forEach((feed) => {
@@ -85,9 +60,42 @@ const updateFeeds = () => {
           console.log(err);
         });
     });
-    console.log(JSON.stringify(state));
+    // console.log(JSON.stringify(state));
     updateFeeds();
   }, updateTimeout);
 };
 
-updateFeeds();
+const form = document.querySelector('form');
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  state.rssSubscribeForm.state = 'checking';
+  rssURLValidate(form.elements.url.value)
+    .then(() => {
+      state.rssSubscribeForm.error = '';
+      return getRSS(form.elements.url.value);
+    })
+    .then(({ data: { contents } }) => {
+      const rssDocument = parsRSS(contents);
+      console.log(rssDocument);
+      const currentChannel = { ...extractChannel(rssDocument), link: form.elements.url.value };
+      const currentCannelId = state.addFeed(currentChannel);
+      state.addPosts(extractPosts(rssDocument, currentCannelId));
+    })
+    .then(() => {
+      state.rssSubscribeForm.state = 'added';
+      updateFeeds();
+      state.rssSubscribeForm.state = 'filling';
+    })
+    .catch((err) => {
+      console.log(err);
+      state.rssSubscribeForm.error = err.message;
+      state.rssSubscribeForm.state = 'invalid';
+    });
+});
+
+const modal = document.querySelector('#modal');
+modal.addEventListener('show.bs.modal', (e) => {
+  const { relatedTarget: { dataset: { postId: targetPostId } } } = e;
+  state.uiState.modal.currentPostId = targetPostId;
+  state.addViewedPostId(targetPostId);
+});

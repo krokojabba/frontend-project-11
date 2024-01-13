@@ -4,7 +4,12 @@ import i18n from 'i18next';
 import _ from 'lodash';
 import resources from './locales/index.js';
 
-const isEqualPost = (post, anotherPost) => ['title', 'link', 'channelId'].reduce((acc, key) => acc && post[key] === anotherPost[key], true);
+const isEqualPost = (post, anotherPost) => [
+  'title',
+  'link',
+  'channelId',
+  'description',
+].reduce((acc, key) => acc && post[key] === anotherPost[key], true);
 
 class State {
   constructor() {
@@ -15,6 +20,14 @@ class State {
     this.feeds = [];
     this.posts = [];
     this.lng = 'en';
+    this.uiState = {
+      modal: {
+        currentPostId: null,
+      },
+      posts: {
+        viewedIds: [],
+      },
+    };
   }
 
   getURLList() {
@@ -22,11 +35,8 @@ class State {
   }
 
   addPosts(newPosts) {
-    const uniqPosts = _.uniqWith([...newPosts, ...this.posts], isEqualPost);
-    this.posts = uniqPosts.map((post) => {
-      if (post.id) return post;
-      return { ...post, id: _.uniqueId() };
-    });
+    const uniqPosts = _.uniqWith([...this.posts, ...newPosts], isEqualPost);
+    this.posts = uniqPosts.map((post) => (post.id ? post : { ...post, id: _.uniqueId() }));
   }
 
   addFeed(newFeed) {
@@ -37,6 +47,16 @@ class State {
 
   getFeeds() {
     return this.feeds;
+  }
+
+  getPostById(id) {
+    return this.posts.find((post) => post.id === id);
+  }
+
+  addViewedPostId(id) {
+    if (!this.uiState.posts.viewedIds.includes(id)) {
+      this.uiState.posts.viewedIds = [...this.uiState.posts.viewedIds, id];
+    }
   }
 }
 

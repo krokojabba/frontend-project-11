@@ -5,6 +5,7 @@ export default (initState, i18nextInstance) => {
   const postsUl = document.querySelector('#posts');
   const feedsUl = document.querySelector('#feeds');
   const contentSection = document.querySelector('#content-section');
+  const modalForm = document.querySelector('#modal');
 
   const clearFeedback = (targetForm) => {
     const existFeedback = targetForm.querySelector('#feedback');
@@ -28,19 +29,39 @@ export default (initState, i18nextInstance) => {
     });
   };
 
-  const renderPosts = (posts) => {
+  const renderViewedPosts = (viewedPosts) => {
+    postsUl.querySelectorAll('li').forEach((post) => {
+      const postModalBtn = post.querySelector('.btn');
+      const { dataset: { postId } } = postModalBtn;
+      if (viewedPosts.includes(postId)) {
+        const postTitle = post.querySelector('a');
+        postTitle.classList.remove('fw-bold');
+        postTitle.classList.add('fw-normal');
+      }
+    });
+  };
+
+  const renderPosts = (posts, viewedIds) => {
     contentSection.classList.remove('invisible');
     postsUl.innerHTML = '';
     posts.forEach((post) => {
       const postLi = document.createElement('li');
-      postLi.classList.add('list-group-item');
+      postLi.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-item-start');
       const postLink = document.createElement('a');
       postLink.textContent = post.title;
       postLink.classList.add('fw-bold');
       postLink.href = post.link;
-      postLi.prepend(postLink);
+      const postModalBtn = document.createElement('button');
+      postModalBtn.classList.add('btn', 'btn-primary');
+      postModalBtn.type = 'button';
+      postModalBtn.dataset.bsTarget = '#modal';
+      postModalBtn.dataset.bsToggle = 'modal';
+      postModalBtn.dataset.postId = post.id;
+      postModalBtn.textContent = i18nextInstance.t('viewBtnLable');
+      postLi.prepend(postLink, postModalBtn);
       postsUl.prepend(postLi);
     });
+    renderViewedPosts(viewedIds);
   };
 
   const renderForm = (state) => {
@@ -89,21 +110,41 @@ export default (initState, i18nextInstance) => {
     }
   };
 
+  const renderModal = ({ title, description, link }) => {
+    const modalLabel = modalForm.querySelector('#modalLabel');
+    modalLabel.textContent = title;
+    const modalBodyText = modalForm.querySelector('.modal-body p');
+    modalBodyText.textContent = description;
+    const modalBtn = modalForm.querySelector('.btn-primary');
+    modalBtn.href = link;
+  };
+
   const state = onChange(initState, (path/* , current, previous */) => {
+    console.log(path);
     switch (path) {
       case 'rssSubscribeForm.state': {
         renderForm(state);
         break;
       }
+      case 'uiState.modal.currentPostId':
+        /* console.log(state.uiState.modal.currentPostId);
+        console.log(state.getPostById(state.uiState.modal.currentPostId));
+        console.log(JSON.stringify(state)); */
+        renderModal(state.getPostById(state.uiState.modal.currentPostId));
+        break;
       case 'posts':
-        renderPosts(state.posts);
+        renderPosts(state.posts, state.uiState.posts.viewedIds);
         break;
       case 'feeds':
         renderFeeds(state.feeds);
         break;
+      case 'uiState.posts.viewedIds':
+        console.log(state.uiState.posts.viewedIds);
+        renderViewedPosts(state.uiState.posts.viewedIds);
+        break;
       default:
         break;
     }
-  }, { details: ['addFeed', 'addPosts'] });
+  }, { details: ['addFeed', 'addPosts', 'addViewedPostId'] });
   return state;
 };

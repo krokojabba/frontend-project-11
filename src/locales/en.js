@@ -7,5 +7,6 @@ export default {
       networkError: 'Network error',
     },
     validFeedBack: 'URL successfully added',
+    viewBtnLable: 'View',
   },
 };

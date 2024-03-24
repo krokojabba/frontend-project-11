@@ -34,16 +34,16 @@ class State {
     return this.feeds.map(({ link }) => link);
   }
 
-  addPosts(newPosts) {
+  /* addPosts(newPosts) {
     const uniqPosts = _.uniqWith([...this.posts, ...newPosts], isEqualPost);
     this.posts = uniqPosts.map((post) => (post.id ? post : { ...post, id: _.uniqueId() }));
-  }
+  } */
 
-  addFeed(newFeed) {
+  /* addFeed(newFeed) {
     const id = _.uniqueId();
     this.feeds.push({ id, ...newFeed });
     return id;
-  }
+  } */
 
   getFeeds() {
     return this.feeds;
@@ -53,11 +53,11 @@ class State {
     return this.posts.find((post) => post.id === id);
   }
 
-  addViewedPostId(id) {
+  /* addViewedPostId(id) {
     if (!this.uiState.posts.viewedIds.includes(id)) {
       this.uiState.posts.viewedIds = [...this.uiState.posts.viewedIds, id];
     }
-  }
+  } */
 }
 
 export default () => {

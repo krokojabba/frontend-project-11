@@ -2,10 +2,35 @@ import * as yup from 'yup';
 import axios from 'axios';
 import init from './init.js';
 import view from './view.js';
+import _ from 'lodash';
 
 const { initState, i18nextInstance } = init();
 const state = view(initState, i18nextInstance);
 const updateTimeout = 5000;
+
+const isEqualPost = (post, anotherPost) => [
+  'title',
+  'link',
+  'channelId',
+  'description',
+].reduce((acc, key) => acc && post[key] === anotherPost[key], true);
+
+const addPosts = (currentState, newPosts) => {
+  const uniqPosts = _.uniqWith([...currentState.posts, ...newPosts], isEqualPost);
+  currentState.posts = uniqPosts.map((post) => (post.id ? post : { ...post, id: _.uniqueId() }));
+};
+
+const addFeed = (currentState, newFeed) => {
+  const id = _.uniqueId();
+  currentState.feeds.push({ id, ...newFeed });
+  return id;
+};
+
+const addViewedPostId = (currentState, id) => {
+  if (!currentState.uiState.posts.viewedIds.includes(id)) {
+    currentState.uiState.posts.viewedIds = [...currentState.uiState.posts.viewedIds, id];
+  }
+};
 
 const rssURLValidate = (url) => yup
   .string()
@@ -54,7 +79,8 @@ const updateFeeds = () => {
       getRSS(feed.link)
         .then(({ data: { contents } }) => {
           const rssDocument = parsRSS(contents);
-          state.addPosts(extractPosts(rssDocument, feed.id));
+          // state.addPosts(extractPosts(rssDocument, feed.id));
+          addPosts(state, extractPosts(rssDocument, feed.id));
         })
         .catch((err) => {
           console.log(err);
@@ -78,8 +104,10 @@ form.addEventListener('submit', (e) => {
       const rssDocument = parsRSS(contents);
       console.log(rssDocument);
       const currentChannel = { ...extractChannel(rssDocument), link: form.elements.url.value };
-      const currentCannelId = state.addFeed(currentChannel);
-      state.addPosts(extractPosts(rssDocument, currentCannelId));
+      // const currentCannelId = state.addFeed(currentChannel);
+      const currentCannelId = addFeed(state, currentChannel);
+      // state.addPosts(extractPosts(rssDocument, currentCannelId));
+      addPosts(state, extractPosts(rssDocument, currentCannelId));
     })
     .then(() => {
       state.rssSubscribeForm.state = 'added';
@@ -97,5 +125,6 @@ const modal = document.querySelector('#modal');
 modal.addEventListener('show.bs.modal', (e) => {
   const { relatedTarget: { dataset: { postId: targetPostId } } } = e;
   state.uiState.modal.currentPostId = targetPostId;
-  state.addViewedPostId(targetPostId);
+  //state.addViewedPostId(targetPostId);
+  addViewedPostId(state, targetPostId);
 });

@@ -145,6 +145,6 @@ export default (initState, i18nextInstance) => {
       default:
         break;
     }
-  }, /* { details: ['addFeed', 'addPosts', 'addViewedPostId'] }*/);
+  });
   return state;
 };
